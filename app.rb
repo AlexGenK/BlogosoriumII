@@ -1,25 +1,17 @@
 # блог
 require 'sinatra'
 require 'sinatra/reloader'
-require 'sqlite3'
+require 'sinatra/activerecord'
 
-# процедура инициализации
-configure do
-	# подключаемся, а при отсутствии создаем БД
-	$db=SQLite3::Database.new "./database.db"
-	# результаты запроса выводятся в виде хеша
-	$db.results_as_hash = true
-	# создается таблица для хранения постов
-	$db.execute("CREATE  TABLE  IF NOT EXISTS posts (p_id INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE, 
-													 p_name VARCHAR, 
-													 p_post VARCHAR, 
-													 p_date DATETIME DEFAULT (datetime('now', 'localtime')))")
-	# создается таблица для хранения комментов к постам
-	$db.execute("CREATE  TABLE  IF NOT EXISTS comments (c_id INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE, 
-														p_id INTEGER,
-													 	c_name VARCHAR, 
-													 	c_comment VARCHAR, 
-													 	c_date DATETIME DEFAULT (datetime('now', 'localtime')))")
+# обявление БД
+set :database, "sqlite3:blogosorium.db"
+
+# модель - пост
+class Post < ActiveRecord::Base
+end
+
+# модель - коментарий
+class Comment < ActiveRecord::Base
 end
 
 # главная страница
