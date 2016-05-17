@@ -8,15 +8,19 @@ set :database, "sqlite3:blogosorium.db"
 
 # модель - пост
 class Post < ActiveRecord::Base
+	# один пост - много комментов
+	has_many :comments
 end
 
 # модель - коментарий
 class Comment < ActiveRecord::Base
+	# коммент привязан к одному посту
+	belongs_to :post
 end
 
 # главная страница
 get '/' do
-	
+
 	# выборка простов в порядке обратном порядку создания
 	@p=Post.order(:updated_at).reverse_order
 	erb :posts
@@ -29,7 +33,7 @@ end
 
 # детальная информация о посте №:id
 get '/post/:id' do
-	@id=params[:id]
+	@p=Post.find(params[:id])
 	erb :onepost
 end
 
@@ -49,14 +53,13 @@ end
 
 # обработчик формы ввода комментария
 post '/post/:id' do
-	@id=params[:id]
-	@name_c=params[:name_c]
-	@comment=params[:comment]
+
+	# создаем коммент, связанный с постом по его айди
+	c=Post.find(params[:id]).comments.create(params[:comment])
 
   	# получение сообщения об ошибке. если нет, то комментарий записывается в БД и 
   	# в любом случае идет перенаправление на форму с детальной информацией о посте
-
- 	if @error==""
+ 	if c.save
   	end
-  	erb :onepost
+  	redirect to ("/post/#{params[:id]}")
 end
